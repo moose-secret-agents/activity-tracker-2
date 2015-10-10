@@ -99,6 +99,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             info("Opening Settings")
             return true
         }
+        if (id == R.id.action_clear_history) {
+            find<AppCompatTextView>(R.id.txt_content).text = ""
+        }
 
         return super.onOptionsItemSelected(item)
     }

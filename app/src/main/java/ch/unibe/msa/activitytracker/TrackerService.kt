@@ -1,5 +1,6 @@
 package ch.unibe.msa.activitytracker
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
@@ -95,6 +96,8 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
 
         // Initiate location tracking
         LocationServices.FusedLocationApi.requestLocationUpdates(gApiClient, locRequest, locListener)
+
+        showNotification()
     }
 
     private fun stopTracking() {
@@ -111,6 +114,26 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
 
         // Disconnect GMS Client
         gApiClient?.disconnect()
+
+        cancelNotification()
+    }
+
+    private fun showNotification() {
+        val i = intentFor<MainActivity>()
+        val pi = PendingIntent.getActivity(this, 1, i, Intent.FLAG_ACTIVITY_SINGLE_TOP)
+
+        val notification = Notification.Builder(this)
+                .setSmallIcon(android.R.drawable.ic_media_play)
+                .setContentTitle("Activity Tracker")
+                .setContentText("Activity Tracker is tracking your activity")
+                .setContentIntent(pi)
+                .build()
+
+        notificationManager.notify(Constants.NOTIFICATION_ID, notification)
+    }
+
+    private fun cancelNotification() {
+        notificationManager.cancel(Constants.NOTIFICATION_ID)
     }
 
     inner class LocListener : LocationListener {
