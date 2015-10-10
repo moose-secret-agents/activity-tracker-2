@@ -8,8 +8,6 @@ import org.jetbrains.anko.*
 
 class ActivityRecognitionService : IntentService("activity-rec-service"), AnkoLogger {
 
-    val sender: Sender by lazy { Sender(defaultSharedPreferences.getString("url", "localhost")) }
-
     override fun onCreate() {
         super.onCreate()
     }
@@ -25,7 +23,10 @@ class ActivityRecognitionService : IntentService("activity-rec-service"), AnkoLo
             info("Activity detected: $activityText ($confidence)")
 
             // TODO: Send activity data to server
-            async { sender.send(Data.Activity(activity = activityText, confidence = confidence)) }
+            async {
+                val sender = Sender(defaultSharedPreferences.getString("url", "localhost"))
+                sender.send(Data.Activity(activity = activityText, confidence = confidence))
+            }
 
             notifyOthers(activityText, confidence)
         }

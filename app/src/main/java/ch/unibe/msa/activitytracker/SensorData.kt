@@ -33,8 +33,9 @@ class Sender(val uri: String) {
     }
 
     fun send(data: String) {
-        println("Sending data to $uri: $data")
-        client.post(uri).param("data", data)
+        val actualUri = "http://$uri"
+        println("Sending data to $actualUri: $data")
+        client.post(actualUri).param("data", data).asString()
     }
 
     fun send(vararg sendables: Sendable) {

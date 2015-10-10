@@ -22,7 +22,6 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
     var gApiClient: GoogleApiClient? = null
     var locRequest: LocationRequest? = null
     val locListener = LocListener()
-    val sender: Sender by lazy { Sender(defaultSharedPreferences.getString("url", "localhost")) }
 
     override fun onBind(intent: Intent?): IBinder? {
         info("Bound to service with intent $intent")
@@ -120,7 +119,10 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
             val longitude = location?.longitude ?: 0.0
 
             info("New Location found: $latitude, $longitude")
-            async { sender.send(Data.Location(latitude = latitude, longitude = longitude)) }
+            async {
+                val sender = Sender(defaultSharedPreferences.getString("url", "localhost"))
+                sender.send(Data.Location(latitude = latitude, longitude = longitude))
+            }
 
             notifyOthers(latitude, longitude)
         }

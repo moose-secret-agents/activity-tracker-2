@@ -7,10 +7,11 @@ import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatTextView
 import android.support.v7.widget.Toolbar
-import android.text.method.ScrollingMovementMethod
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ScrollView
 import org.jetbrains.anko.*
 import java.util.*
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     var receiver: BroadcastReceiver? = null
 
     init {
+        // Listen for broadcast Actions from Location and Activity services
         intentFilter.addAction(Constants.ACTION_NEW_ACTIVITY)
         intentFilter.addAction(Constants.ACTION_NEW_LOCATION)
     }
@@ -44,7 +46,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 fab.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_pause, theme))
                 startTrackingService()
             }
-            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show()
         }
 
         receiver = broadcastReceiver { context, intent ->
@@ -63,7 +64,17 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
         }
 
+        find<Button>(R.id.btn_save_url).onClick {
+            val url = find<EditText>(R.id.ed_url).text.toString()
+            defaultSharedPreferences.edit().putString("url", url).commit()
+        }
+
         registerReceiver(receiver, intentFilter)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        find<EditText>(R.id.ed_url).setText(defaultSharedPreferences.getString("url", "localhost:3000"))
     }
 
     override fun onDestroy() {
@@ -85,6 +96,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            info("Opening Settings")
             return true
         }
 
@@ -94,7 +106,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     fun isTracking(): Boolean {
         val names = activityManager.getRunningServices(Int.MAX_VALUE).map { it.service.className }
         val serviceName = TrackerService::class.java.toString()
-        return  names.any { it.equals(serviceName.replace("class ", "")) }
+        return names.any { it.equals(serviceName.replace("class ", "")) }
     }
 
     fun startTrackingService() {
