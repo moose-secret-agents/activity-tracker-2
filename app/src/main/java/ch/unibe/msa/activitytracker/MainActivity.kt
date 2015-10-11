@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ScrollView
+import com.rengwuxian.materialedittext.MaterialEditText
 import org.jetbrains.anko.*
 import java.util.*
 
@@ -117,7 +118,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         startService(intentFor<TrackerService>())
 
         addToHistory("Tracking started")
-        toast("Tracking started")
     }
 
     fun stopTrackingService() {
@@ -125,7 +125,6 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         stopService(intentFor<TrackerService>())
 
         addToHistory("Tracking stopped")
-        toast("Tracking stopped")
     }
 
     fun addToHistory(text: String) {

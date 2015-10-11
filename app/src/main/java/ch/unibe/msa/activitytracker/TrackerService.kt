@@ -7,6 +7,8 @@ import android.content.Intent
 import android.location.Location
 import android.os.Bundle
 import android.os.IBinder
+import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.GoogleApiClient
@@ -122,10 +124,13 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
         val i = intentFor<MainActivity>()
         val pi = PendingIntent.getActivity(this, 1, i, Intent.FLAG_ACTIVITY_SINGLE_TOP)
 
-        val notification = Notification.Builder(this)
-                .setSmallIcon(android.R.drawable.ic_media_play)
+        val notification = NotificationCompat.Builder(this)
                 .setContentTitle("Activity Tracker")
                 .setContentText("Activity Tracker is tracking your activity")
+                .setSmallIcon(R.drawable.ic_stat_maps_directions_walk)
+                .setOngoing(true)
+                .addAction(android.R.drawable.ic_media_pause, "Stop Tracking", null)
+                .setColor(ContextCompat.getColor(this, R.color.colorAccent))
                 .setContentIntent(pi)
                 .build()
 
