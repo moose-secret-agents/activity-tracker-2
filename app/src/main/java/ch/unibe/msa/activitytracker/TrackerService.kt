@@ -1,6 +1,5 @@
 package ch.unibe.msa.activitytracker
 
-import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
@@ -40,6 +39,13 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(10 * 1000)       // 10 seconds, in milliseconds
                 .setFastestInterval(1 * 1000) // 1 second, in milliseconds
+
+        gApiClient = GoogleApiClient.Builder(this)
+                .addApi(ActivityRecognition.API)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -52,13 +58,6 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
 
         // Connect to play services
         if (isPlayServiceAvailable()) {
-            gApiClient = GoogleApiClient.Builder(this)
-                    .addApi(ActivityRecognition.API)
-                    .addApi(LocationServices.API)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .build()
-
             //Connect to Google API
             gApiClient?.connect()
         }
@@ -103,6 +102,8 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
     }
 
     private fun stopTracking() {
+        if (!(gApiClient?.isConnected ?: false)) return
+
         // Stop activity tracking
         val intent = intentFor<ActivityRecognitionService>()
         val callbackIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -122,14 +123,14 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
 
     private fun showNotification() {
         val i = intentFor<MainActivity>()
-        val pi = PendingIntent.getActivity(this, 1, i, Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val pi = PendingIntent.getActivity(this, 1, i, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
 
         val notification = NotificationCompat.Builder(this)
                 .setContentTitle("Activity Tracker")
                 .setContentText("Activity Tracker is tracking your activity")
                 .setSmallIcon(R.drawable.ic_stat_maps_directions_walk)
                 .setOngoing(true)
-                .addAction(android.R.drawable.ic_media_pause, "Stop Tracking", null)
+                .addAction(android.R.drawable.ic_media_pause, "Stop Tracking", pi)
                 .setColor(ContextCompat.getColor(this, R.color.colorAccent))
                 .setContentIntent(pi)
                 .build()
@@ -145,6 +146,7 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
         override fun onLocationChanged(location: Location?) {
             val latitude = location?.latitude ?: 0.0
             val longitude = location?.longitude ?: 0.0
+            val elevation = location?.altitude ?: 0.0
 
             info("New Location found: $latitude, $longitude")
             async {
@@ -152,14 +154,15 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
                 sender.send(Data.Location(latitude = latitude, longitude = longitude))
             }
 
-            notifyOthers(latitude, longitude)
+            notifyOthers(latitude, longitude, elevation)
         }
 
-        fun notifyOthers(latitude: Double, longitude: Double) {
+        fun notifyOthers(latitude: Double, longitude: Double, elevation: Double) {
             // Notify MainActivity about new activity via broadcast
             val bcIntent = Intent(Constants.ACTION_NEW_LOCATION)
                     .putExtra("latitude", latitude)
                     .putExtra("longitude", longitude)
+                    .putExtra("elevation", elevation)
             sendBroadcast(bcIntent)
         }
     }
