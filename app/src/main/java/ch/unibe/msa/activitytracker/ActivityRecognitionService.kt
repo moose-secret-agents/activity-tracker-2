@@ -23,10 +23,12 @@ class ActivityRecognitionService : IntentService("activity-rec-service"), AnkoLo
             info("Activity detected: $activityText ($confidence)")
 
             // TODO: Send activity data to server
-            async {
+            defaultSharedPreferences.edit().putString("ACTIVITY", activityText).putInt("ACTIVITY_CONFIDENCE", confidence).commit()
+
+            /*async {
                 val sender = Sender(defaultSharedPreferences.getString("url", "localhost"))
                 sender.send(Data.Activity(activity = activityText, confidence = confidence))
-            }
+            }*/
 
             notifyOthers(activityText, confidence)
         }

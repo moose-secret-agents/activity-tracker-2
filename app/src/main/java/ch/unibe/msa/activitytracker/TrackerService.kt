@@ -151,7 +151,9 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
             info("New Location found: $latitude, $longitude")
             async {
                 val sender = Sender(defaultSharedPreferences.getString("url", "localhost"))
-                sender.send(Data.Location(latitude = latitude, longitude = longitude))
+                sender.send(Data.Location(latitude = latitude, longitude = longitude),
+                        Data.Activity(activity = defaultSharedPreferences.getString("ACTIVITY","UNKNOWN"),
+                                confidence = defaultSharedPreferences.getInt("ACTIVITY_CONFIDENCE",100)))
             }
 
             notifyOthers(latitude, longitude, elevation)
