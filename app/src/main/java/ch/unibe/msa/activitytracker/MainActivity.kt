@@ -70,9 +70,10 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             }
         }
 
-        find<Button>(R.id.btn_save_url).onClick {
-            val url = find<EditText>(R.id.ed_url).text.toString()
-            defaultSharedPreferences.edit().putString("url", url).commit()
+        find<Button>(R.id.btn_save_username).onClick {
+            val username = find<EditText>(R.id.ed_username).text.toString()
+            defaultSharedPreferences.edit().putString("username", username).commit()
+            toast("Username saved")
         }
 
         registerReceiver(receiver, intentFilter)
@@ -80,7 +81,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onStart() {
         super.onStart()
-        find<EditText>(R.id.ed_url).setText(defaultSharedPreferences.getString("url", "localhost:3000"))
+        find<EditText>(R.id.ed_username).setText(defaultSharedPreferences.getString("username", ""))
     }
 
     override fun onDestroy() {

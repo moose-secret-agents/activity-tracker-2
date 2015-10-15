@@ -4,14 +4,16 @@ import com.github.salomonbrys.kotson.*
 import com.goebl.david.Webb
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import org.jetbrains.anko.*
 import java.util.*
 
 interface Sendable {
     val Data: JsonObject
     val Type: String
+
 }
 
-class Data {
+class Data : AnkoLogger{
     data class Location(val timestamp: Date = Date(), val latitude: Double, val longitude: Double) : Sendable {
         override val Data: JsonObject
             get() = jsonObject("type" to Type, "timestamp" to timestamp.toJsonDate(), "latitude" to latitude, "longitude" to longitude)
@@ -24,6 +26,14 @@ class Data {
             get() = jsonObject("type" to Type, "timestamp" to timestamp.toJsonDate(), "activity" to activity, "certainty" to confidence)
         override val Type: String
             get() = "activity"
+    }
+    data class User(val username: String) : Sendable {
+        override val Type: String
+            get() = "user"
+        override val Data: JsonObject
+            get() = jsonObject("username" to username);
+
+
     }
 }
 
