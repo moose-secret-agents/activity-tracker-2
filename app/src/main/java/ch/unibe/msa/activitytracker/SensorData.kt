@@ -1,5 +1,7 @@
 package ch.unibe.msa.activitytracker
 
+import android.content.Intent
+import android.util.Base64
 import com.github.salomonbrys.kotson.*
 import com.goebl.david.Webb
 import com.google.gson.JsonArray
@@ -37,7 +39,7 @@ class Data : AnkoLogger{
     }
 }
 
-class Sender(val uri: String) {
+/*class Sender(val uri: String) {
     companion object  {
         val client = Webb.create()
     }
@@ -45,7 +47,10 @@ class Sender(val uri: String) {
     fun send(data: String) {
         val actualUri = "http://$uri"
         println("Sending data to $actualUri: $data")
-        client.post(actualUri).param("data", data).asString()
+        var encodedCredentials = "Basic " + Base64.encodeToString(
+        ("sweattoscoretest" + ":" + "blabla").toByteArray(),
+        Base64.NO_WRAP);
+        client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).asString().responseMessage.toString()
     }
 
     fun send(vararg sendables: Sendable) {
@@ -53,4 +58,4 @@ class Sender(val uri: String) {
         json.addAll(sendables.map { it.Data })
         send(json.toString())
     }
-}
+}*/

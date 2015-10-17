@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
         // Listen for broadcast Actions from Location and Activity services
         intentFilter.addAction(Constants.ACTION_NEW_ACTIVITY)
         intentFilter.addAction(Constants.ACTION_NEW_LOCATION)
+        intentFilter.addAction(Constants.ACTION_RESPONSE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +68,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 val elevation = intent.extras.getDouble("elevation")
 
                 addToHistory("New Location: $latitude, $longitude @ ${elevation}m")
+            } else if (intent.action.equals(Constants.ACTION_RESPONSE)){
+                addToHistory(intent.extras.getString("response"))
+
             }
         }
 

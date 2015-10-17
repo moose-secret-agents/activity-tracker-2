@@ -8,6 +8,9 @@ import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
+import android.util.Base64
+import com.github.salomonbrys.kotson.addAll
+import com.goebl.david.Webb
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.GoogleApiClient
@@ -17,6 +20,7 @@ import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.gson.JsonArray
 import org.jetbrains.anko.*
 
 public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConnectionFailedListener {
@@ -24,6 +28,7 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
     var gApiClient: GoogleApiClient? = null
     var locRequest: LocationRequest? = null
     val locListener = LocListener()
+    val client = Webb.create()
 
     override fun onBind(intent: Intent?): IBinder? {
         info("Bound to service with intent $intent")
@@ -150,8 +155,8 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
 
             info("New Location found: $latitude, $longitude")
             async {
-                val sender = Sender("localhost")
-                sender.send(Data.Location(latitude = latitude, longitude = longitude),
+
+                send("192.168.43.155:3000/api/v1/dataPoint",Data.Location(latitude = latitude, longitude = longitude),
                         Data.Activity(activity = defaultSharedPreferences.getString("ACTIVITY","UNKNOWN"),
                                 confidence = defaultSharedPreferences.getInt("ACTIVITY_CONFIDENCE",100)),Data.User(defaultSharedPreferences.getString("username","")))
             }
@@ -168,4 +173,29 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
             sendBroadcast(bcIntent)
         }
     }
+
+
+
+
+    fun send(data: String, uri: String) {
+        val actualUri = "http://$uri"
+        println("Sending data to $actualUri: $data")
+        var encodedCredentials = "Basic " + Base64.encodeToString(
+                ("sweattoscoretest" + ":" + "test").toByteArray(),
+                Base64.NO_WRAP);
+        this.notifyOthers(client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).asString().statusLine.toString())
+    }
+
+    fun send(uri: String, vararg sendables: Sendable) {
+        val json = JsonArray()
+        json.addAll(sendables.map { it.Data })
+        send(json.toString(), uri)
+    }
+    fun notifyOthers(response: String) {
+        // Notify MainActivity about new activity via broadcast
+        val bcIntent = Intent(Constants.ACTION_RESPONSE)
+                .putExtra("response", response)
+        sendBroadcast(bcIntent)
+    }
+
 }
