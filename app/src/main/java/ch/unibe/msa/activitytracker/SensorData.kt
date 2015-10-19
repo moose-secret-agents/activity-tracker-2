@@ -39,23 +39,29 @@ class Data : AnkoLogger{
     }
 }
 
-/*class Sender(val uri: String) {
+class Sender(val uri: String, val username: String, val password: String) {
     companion object  {
         val client = Webb.create()
     }
+    init {
+        val username = username
+        val password = password
+    }
 
-    fun send(data: String) {
+    fun send(data: String): String{
         val actualUri = "http://$uri"
         println("Sending data to $actualUri: $data")
         var encodedCredentials = "Basic " + Base64.encodeToString(
-        ("sweattoscoretest" + ":" + "blabla").toByteArray(),
+        ("$username:$password").toByteArray(),
         Base64.NO_WRAP);
-        client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).asString().responseMessage.toString()
+        return client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).asString().statusLine.toString()
+
     }
 
-    fun send(vararg sendables: Sendable) {
+    fun send(vararg sendables: Sendable) : String{
         val json = JsonArray()
         json.addAll(sendables.map { it.Data })
-        send(json.toString())
+        return send(json.toString())
     }
-}*/
+
+}

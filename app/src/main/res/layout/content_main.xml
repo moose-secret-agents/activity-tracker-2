@@ -25,14 +25,24 @@
             android:id="@+id/ed_username"
             android:textSize="16sp"
             app:met_floatingLabel="highlight"
-            android:hint="Username on Sweat to Score" />
+            android:hint="Username" />
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:id="@+id/ed_password"
+            android:textSize="16sp"
+            app:met_floatingLabel="highlight"
+            android:inputType="textPassword"
+            android:hint="Password" />
 
         <Button
             android:id="@+id/btn_save_username"
             style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.2"
+            android:layout_weight="0.5"
             android:text="Save" />
 
     </LinearLayout>

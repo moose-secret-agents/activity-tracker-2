@@ -28,7 +28,8 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
     var gApiClient: GoogleApiClient? = null
     var locRequest: LocationRequest? = null
     val locListener = LocListener()
-    val client = Webb.create()
+    //val client = Webb.create()
+    val sender = Sender("192.168.1.114:3000/api/v1/2/dataPoint","sweattoscoretest","test") //Change to local IP
 
     override fun onBind(intent: Intent?): IBinder? {
         info("Bound to service with intent $intent")
@@ -154,14 +155,22 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
             val elevation = location?.altitude ?: 0.0
 
             info("New Location found: $latitude, $longitude")
-            async {
 
-                send("192.168.43.155:3000/api/v1/dataPoint",Data.Location(latitude = latitude, longitude = longitude),
-                        Data.Activity(activity = defaultSharedPreferences.getString("ACTIVITY","UNKNOWN"),
-                                confidence = defaultSharedPreferences.getInt("ACTIVITY_CONFIDENCE",100)),Data.User(defaultSharedPreferences.getString("username","")))
+            var response = ""
+            async {
+                response = sender.send(Data.Location(latitude = latitude, longitude = longitude),
+                        Data.Activity(activity = defaultSharedPreferences.getString("ACTIVITY", "UNKNOWN"),
+                                confidence = defaultSharedPreferences.getInt("ACTIVITY_CONFIDENCE", 100)), Data.User(defaultSharedPreferences.getString("username", "")))
             }
 
+                /*send("192.168.43.155:3000/api/v1/dataPoint",Data.Location(latitude = latitude, longitude = longitude),
+                        Data.Activity(activity = defaultSharedPreferences.getString("ACTIVITY","UNKNOWN"),
+                                confidence = defaultSharedPreferences.getInt("ACTIVITY_CONFIDENCE",100)),Data.User(defaultSharedPreferences.getString("username","")))*/
+
+
             notifyOthers(latitude, longitude, elevation)
+            notifyOthers(response)
+
         }
 
         fun notifyOthers(latitude: Double, longitude: Double, elevation: Double) {
@@ -172,12 +181,18 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
                     .putExtra("elevation", elevation)
             sendBroadcast(bcIntent)
         }
+        fun notifyOthers(response: String) {
+            // Notify MainActivity about new activity via broadcast
+            val bcIntent = Intent(Constants.ACTION_RESPONSE)
+                    .putExtra("response", response)
+            sendBroadcast(bcIntent)
+        }
     }
 
 
 
 
-    fun send(data: String, uri: String) {
+    /*fun send(data: String, uri: String) {
         val actualUri = "http://$uri"
         println("Sending data to $actualUri: $data")
         var encodedCredentials = "Basic " + Base64.encodeToString(
@@ -196,6 +211,6 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
         val bcIntent = Intent(Constants.ACTION_RESPONSE)
                 .putExtra("response", response)
         sendBroadcast(bcIntent)
-    }
+    }*/
 
 }
