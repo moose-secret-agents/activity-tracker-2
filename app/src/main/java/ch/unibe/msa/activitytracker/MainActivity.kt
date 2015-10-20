@@ -50,6 +50,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 stopTrackingService()
             } else {
                 fab.image = resources.getDrawable(android.R.drawable.ic_media_pause, theme)
+                var sender = Sender("192.168.43.155:3000/api/v1/TrainingSession",
+                        defaultSharedPreferences.getString("username", ""),defaultSharedPreferences.getString("password", ""))
+
                 startTracking()
             }
         }
@@ -76,8 +79,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
         find<Button>(R.id.btn_save_username).onClick {
             val username = find<EditText>(R.id.ed_username).text.toString()
-            defaultSharedPreferences.edit().putString("username", username).commit()
-            toast("Username saved")
+            val password = find<EditText>(R.id.ed_password).text.toString()
+            defaultSharedPreferences.edit().putString("username", username).putString("password",password).commit()
+            toast("Credentials saved")
         }
 
         registerReceiver(receiver, intentFilter)
@@ -86,6 +90,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
     override fun onStart() {
         super.onStart()
         find<EditText>(R.id.ed_username).setText(defaultSharedPreferences.getString("username", ""))
+        find<EditText>(R.id.ed_password).setText(defaultSharedPreferences.getString("password", ""))
     }
 
     override fun onDestroy() {

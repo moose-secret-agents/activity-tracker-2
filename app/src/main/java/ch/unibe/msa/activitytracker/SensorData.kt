@@ -39,14 +39,12 @@ class Data : AnkoLogger{
     }
 }
 
-class Sender(val uri: String, val username: String, val password: String) {
+class Sender(var uri: String, val username: String, val password: String) {
     companion object  {
         val client = Webb.create()
     }
-    init {
-        val username = username
-        val password = password
-    }
+
+    private var sessionID = 0
 
     fun send(data: String): String{
         val actualUri = "http://$uri"
@@ -54,7 +52,22 @@ class Sender(val uri: String, val username: String, val password: String) {
         var encodedCredentials = "Basic " + Base64.encodeToString(
         ("$username:$password").toByteArray(),
         Base64.NO_WRAP);
-        return client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).asString().statusLine.toString()
+        return client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).ensureSuccess().asString().statusCode.toString()
+    }
+
+    fun getSession(): Int{
+        val actualUri = "http://192.168.43.155:3000/api/v1/TrainingSession"
+        println("Sending data to $actualUri")
+        var encodedCredentials = "Basic " + Base64.encodeToString(
+                ("$username:$password").toByteArray(),
+                Base64.NO_WRAP);
+        var jsonBody = client.get(actualUri).header("Authorization",encodedCredentials).ensureSuccess().asJsonObject().body
+
+        println(jsonBody["session_id"])
+        sessionID = jsonBody.getInt("session_id")
+        println("ID is $sessionID")
+        uri = uri.replace(":sessionID",sessionID.toString())
+        return sessionID
 
     }
 
@@ -62,6 +75,7 @@ class Sender(val uri: String, val username: String, val password: String) {
         val json = JsonArray()
         json.addAll(sendables.map { it.Data })
         return send(json.toString())
+
     }
 
 }

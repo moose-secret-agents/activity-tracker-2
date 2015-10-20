@@ -29,7 +29,7 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
     var locRequest: LocationRequest? = null
     val locListener = LocListener()
     //val client = Webb.create()
-    val sender = Sender("192.168.1.114:3000/api/v1/2/dataPoint","sweattoscoretest","test") //Change to local IP
+    var sender = Sender("192.168.43.155:3000/api/v1/:sessionID/dataPoint","","") //Change to local IP
 
     override fun onBind(intent: Intent?): IBinder? {
         info("Bound to service with intent $intent")
@@ -39,7 +39,8 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
     override fun onCreate() {
         super.onCreate()
         info("TrackerService created")
-
+        sender = Sender("192.168.43.155:3000/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
+        //sender = Sender("192.168.43.155:3000/api/v1/:sessionID/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
         // Create a location request
         locRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -60,6 +61,15 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
         if (intent == null) {
             // Android OS killed our Service and started it again because of
             info("Service was killed by Android")
+            sender = Sender("192.168.43.155:3000/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
+        }
+        else{
+            async {
+                val session = sender.getSession()
+                defaultSharedPreferences.edit().putString("sessionID", session.toString()).commit()
+                println("sessionID: $session")
+                sender = Sender("192.168.43.155:3000/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
+            }
         }
 
         // Connect to play services
@@ -160,7 +170,8 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
             async {
                 response = sender.send(Data.Location(latitude = latitude, longitude = longitude),
                         Data.Activity(activity = defaultSharedPreferences.getString("ACTIVITY", "UNKNOWN"),
-                                confidence = defaultSharedPreferences.getInt("ACTIVITY_CONFIDENCE", 100)), Data.User(defaultSharedPreferences.getString("username", "")))
+                                confidence = defaultSharedPreferences.getInt("ACTIVITY_CONFIDENCE", 100)))
+                notifyOthers(response)
             }
 
                 /*send("192.168.43.155:3000/api/v1/dataPoint",Data.Location(latitude = latitude, longitude = longitude),
@@ -169,7 +180,7 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
 
 
             notifyOthers(latitude, longitude, elevation)
-            notifyOthers(response)
+
 
         }
 
