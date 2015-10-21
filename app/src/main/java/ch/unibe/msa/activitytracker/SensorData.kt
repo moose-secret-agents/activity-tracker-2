@@ -16,9 +16,9 @@ interface Sendable {
 }
 
 class Data : AnkoLogger{
-    data class Location(val timestamp: Date = Date(), val latitude: Double, val longitude: Double) : Sendable {
+    data class Location(val timestamp: Date = Date(), val latitude: Double, val longitude: Double, val elevation: Double) : Sendable {
         override val Data: JsonObject
-            get() = jsonObject("type" to Type, "timestamp" to timestamp.toJsonDate(), "latitude" to latitude, "longitude" to longitude)
+            get() = jsonObject("type" to Type, "timestamp" to timestamp.toJsonDate(), "latitude" to latitude, "longitude" to longitude, "elevation" to elevation)
         override val Type: String
             get() = "location"
     }
@@ -52,11 +52,13 @@ class Sender(var uri: String, val username: String, val password: String) {
         var encodedCredentials = "Basic " + Base64.encodeToString(
         ("$username:$password").toByteArray(),
         Base64.NO_WRAP);
-        return client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).ensureSuccess().asString().statusCode.toString()
+        var jsonBody = client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).ensureSuccess().asJsonObject().body
+        var distance = jsonBody.getString("distance")
+        return distance
     }
 
     fun getSession(): Int{
-        val actualUri = "http://192.168.43.155:3000/api/v1/TrainingSession"
+        val actualUri = "http://${Constants.BASE_URL}/api/v1/TrainingSession"
         println("Sending data to $actualUri")
         var encodedCredentials = "Basic " + Base64.encodeToString(
                 ("$username:$password").toByteArray(),

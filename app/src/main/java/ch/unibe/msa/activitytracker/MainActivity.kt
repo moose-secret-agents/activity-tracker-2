@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 stopTrackingService()
             } else {
                 fab.image = resources.getDrawable(android.R.drawable.ic_media_pause, theme)
-                var sender = Sender("192.168.43.155:3000/api/v1/TrainingSession",
+                var sender = Sender("${Constants.BASE_URL}/api/v1/TrainingSession",
                         defaultSharedPreferences.getString("username", ""),defaultSharedPreferences.getString("password", ""))
 
                 startTracking()

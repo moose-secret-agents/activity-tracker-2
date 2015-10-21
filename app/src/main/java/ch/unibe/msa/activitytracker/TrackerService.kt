@@ -29,7 +29,7 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
     var locRequest: LocationRequest? = null
     val locListener = LocListener()
     //val client = Webb.create()
-    var sender = Sender("192.168.43.155:3000/api/v1/:sessionID/dataPoint","","") //Change to local IP
+    var sender = Sender("${Constants.BASE_URL}/api/v1/:sessionID/dataPoint","","") //Change to local IP
 
     override fun onBind(intent: Intent?): IBinder? {
         info("Bound to service with intent $intent")
@@ -39,13 +39,13 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
     override fun onCreate() {
         super.onCreate()
         info("TrackerService created")
-        sender = Sender("192.168.43.155:3000/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
+        sender = Sender("${Constants.BASE_URL}/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
         //sender = Sender("192.168.43.155:3000/api/v1/:sessionID/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
         // Create a location request
         locRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10 * 1000)       // 10 seconds, in milliseconds
-                .setFastestInterval(1 * 1000) // 1 second, in milliseconds
+                .setInterval(12 * 1000)       // 12 seconds, in milliseconds
+                .setFastestInterval(5 * 1000) // 5 second, in milliseconds
 
         gApiClient = GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
@@ -61,14 +61,14 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
         if (intent == null) {
             // Android OS killed our Service and started it again because of
             info("Service was killed by Android")
-            sender = Sender("192.168.43.155:3000/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
+            sender = Sender("${Constants.BASE_URL}:3000/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
         }
         else{
             async {
                 val session = sender.getSession()
                 defaultSharedPreferences.edit().putString("sessionID", session.toString()).commit()
                 println("sessionID: $session")
-                sender = Sender("192.168.43.155:3000/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
+                sender = Sender("${Constants.BASE_URL}/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
             }
         }
 
@@ -168,7 +168,7 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
 
             var response = ""
             async {
-                response = sender.send(Data.Location(latitude = latitude, longitude = longitude),
+                response = sender.send(Data.Location(latitude = latitude, longitude = longitude, elevation = elevation),
                         Data.Activity(activity = defaultSharedPreferences.getString("ACTIVITY", "UNKNOWN"),
                                 confidence = defaultSharedPreferences.getInt("ACTIVITY_CONFIDENCE", 100)))
                 notifyOthers(response)
