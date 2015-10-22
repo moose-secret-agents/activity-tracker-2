@@ -25,7 +25,7 @@ class Data : AnkoLogger{
 
     data class Activity(val timestamp: Date = Date(), val activity: String, val confidence: Int) : Sendable {
         override val Data: JsonObject
-            get() = jsonObject("type" to Type, "timestamp" to timestamp.toJsonDate(), "activity" to activity, "certainty" to confidence)
+            get() = jsonObject("type" to Type, "timestamp" to timestamp.toJsonDate(), "activity" to "RUNNING"/*activity*/, "certainty" to confidence) //TODO: KICK this damn RUNNING
         override val Type: String
             get() = "activity"
     }
@@ -54,7 +54,7 @@ class Sender(var uri: String, val username: String, val password: String) {
         Base64.NO_WRAP);
         var jsonBody = client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).ensureSuccess().asJsonObject().body
         var distance = jsonBody.getString("distance")
-        return distance
+        return jsonBody.toString()
     }
 
     fun getSession(): Int{

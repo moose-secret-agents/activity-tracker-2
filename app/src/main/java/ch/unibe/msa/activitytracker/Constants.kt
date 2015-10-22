@@ -6,5 +6,5 @@ object  Constants {
     const val ACTION_RESPONSE     = "HTTPClient::newResponse"
     const val NOTIFICATION_ID = 123456
     const val PERMISSION_REQUEST_ID = 123
-    const val BASE_URL = "192.168.0.45:3000"
+    const val BASE_URL = "jollrg.de:3000"
 }

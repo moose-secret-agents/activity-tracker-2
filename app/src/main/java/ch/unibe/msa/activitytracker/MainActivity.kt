@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatTextView
 import android.support.v7.widget.Toolbar
+import android.util.JsonReader
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,7 +20,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ScrollView
 import org.jetbrains.anko.*
+import org.json.JSONObject
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
+import java.util.Formatter
+
 
 class MainActivity : AppCompatActivity(), AnkoLogger {
 
@@ -72,7 +78,18 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
                 addToHistory("New Location: $latitude, $longitude @ ${elevation}m")
             } else if (intent.action.equals(Constants.ACTION_RESPONSE)){
-                addToHistory(intent.extras.getString("response"))
+                val resp = intent.extras.getString("response")
+                addToHistory(resp)
+                val json = JSONObject(resp)
+                find<AppCompatTextView>(R.id.view_activity).setText(json.getString("activity"))
+                var totalSecs = json.getString("duration").toDouble()
+                var hours = Math.floor(totalSecs / 3600)
+                var minutes = Math.floor((totalSecs % 3600) / 60)
+                var seconds = totalSecs % 60
+                val formatter = Formatter()
+                val timeString = formatter.format("%02.0f:%02.0f:%02.0f", hours, minutes, seconds);
+                //(json.getString("duration").toDouble() as Int))
+                find<AppCompatTextView>(R.id.view_duration).setText(timeString.toString())
 
             }
         }
