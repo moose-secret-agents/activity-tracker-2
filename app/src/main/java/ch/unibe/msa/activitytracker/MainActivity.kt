@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
@@ -18,6 +19,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.ScrollView
 import org.jetbrains.anko.*
 import org.json.JSONObject
@@ -80,6 +82,17 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             } else if (intent.action.equals(Constants.ACTION_RESPONSE)){
                 val resp = intent.extras.getString("response")
                 addToHistory(resp)
+                if(resp == "UNAUTHORIZED"){
+                    stopTrackingService()
+                    val fab = find<FloatingActionButton>(R.id.fab)
+                    fab.image = resources.getDrawable(android.R.drawable.ic_media_play, theme)
+                    find<LinearLayout>(R.id.background).setBackgroundColor(Color.RED);
+                    toast("User Credentials Invalid, tracking stopped")
+                    return@broadcastReceiver
+                }
+                else{
+                    find<LinearLayout>(R.id.background).setBackgroundColor(Color.WHITE);
+                }
                 val json = JSONObject(resp)
                 find<AppCompatTextView>(R.id.view_activity).setText(json.getString("activity"))
                 var totalSecs = json.getString("duration").toDouble()
@@ -110,6 +123,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             val password = find<EditText>(R.id.ed_password).text.toString()
             defaultSharedPreferences.edit().putString("username", username).putString("password",password).commit()
             toast("Credentials saved")
+            find<LinearLayout>(R.id.background).setBackgroundColor(Color.WHITE);
         }
 
         registerReceiver(receiver, intentFilter)

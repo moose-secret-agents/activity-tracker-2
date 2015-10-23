@@ -52,7 +52,12 @@ class Sender(var uri: String, val username: String, val password: String) {
         var encodedCredentials = "Basic " + Base64.encodeToString(
         ("$username:$password").toByteArray(),
         Base64.NO_WRAP);
-        var jsonBody = client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).ensureSuccess().asJsonObject().body
+        var reqResponse = client.post(actualUri).param("data", data).header("Authorization",encodedCredentials).asJsonObject()
+        var jsonBody = reqResponse.body
+        var code = reqResponse.statusCode
+        if(code == 401) {
+            return "UNAUTHORIZED"
+        }
         var distance = jsonBody.getString("distance")
         return jsonBody.toString()
     }
