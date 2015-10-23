@@ -86,10 +86,21 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 var hours = Math.floor(totalSecs / 3600)
                 var minutes = Math.floor((totalSecs % 3600) / 60)
                 var seconds = totalSecs % 60
-                val formatter = Formatter()
+                var formatter = Formatter()
                 val timeString = formatter.format("%02.0f:%02.0f:%02.0f", hours, minutes, seconds);
-                //(json.getString("duration").toDouble() as Int))
                 find<AppCompatTextView>(R.id.view_duration).setText(timeString.toString())
+
+                formatter = Formatter()
+                val avgSpeed = formatter.format("%.1f km/h", json.getString("avg_speed").toDouble()/3.6);
+                find<AppCompatTextView>(R.id.view_avg_speed).setText(avgSpeed.toString())
+
+                formatter = Formatter()
+                val speed = formatter.format("%.1f km/h", json.getString("current_speed").toDouble()/3.6);
+                find<AppCompatTextView>(R.id.view_speed).setText(speed.toString())
+
+                formatter = Formatter()
+                val elevation = formatter.format("%.1f m", json.getString("elevation_gain").toDouble());
+                find<AppCompatTextView>(R.id.view_elevation).setText(elevation.toString())
 
             }
         }
