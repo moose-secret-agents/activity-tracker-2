@@ -39,12 +39,12 @@ class Data : AnkoLogger{
     }
 }
 
-class Sender(var uri: String, val username: String, val password: String) {
+class Sender(var uri: String, val username: String, val password: String, var sessionID: Int = 0) {
     companion object  {
         val client = Webb.create()
     }
 
-    private var sessionID = 0
+
 
     fun send(data: String): String{
         val actualUri = "http://$uri"
@@ -76,6 +76,15 @@ class Sender(var uri: String, val username: String, val password: String) {
         uri = uri.replace(":sessionID",sessionID.toString())
         return sessionID
 
+    }
+    fun concludeSession(){
+        val actualURI = "http://${Constants.BASE_URL}/api/v1/${sessionID}/conclude"
+        var encodedCredentials = "Basic " + Base64.encodeToString(
+                ("$username:$password").toByteArray(),
+                Base64.NO_WRAP);
+        println("sending conclude request")
+        println(client.post(actualURI).header("Authorization",encodedCredentials).asJsonObject().body.toString())
+        println("Session concluded")
     }
 
     fun send(vararg sendables: Sendable) : String{

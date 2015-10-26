@@ -56,6 +56,12 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
             if (isTracking()) {
                 fab.image = resources.getDrawable(android.R.drawable.ic_media_play, theme)
                 stopTrackingService()
+                var sender = Sender("${Constants.BASE_URL}/api/v1/TrainingSession",
+                        defaultSharedPreferences.getString("username", ""),defaultSharedPreferences.getString("password", ""))
+                sender.sessionID = defaultSharedPreferences.getString("sessionID","0").toInt()
+                async {
+                    sender.concludeSession()
+                }
             } else {
                 fab.image = resources.getDrawable(android.R.drawable.ic_media_pause, theme)
                 var sender = Sender("${Constants.BASE_URL}/api/v1/TrainingSession",
