@@ -110,16 +110,20 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 find<AppCompatTextView>(R.id.view_duration).setText(timeString.toString())
 
                 formatter = Formatter()
-                val avgSpeed = formatter.format("%.1f km/h", json.getString("avg_speed").toDouble()/3.6);
+                val avgSpeed = formatter.format("%.1f km/h", json.getString("avg_speed").toDouble()*3.6);
                 find<AppCompatTextView>(R.id.view_avg_speed).setText(avgSpeed.toString())
 
                 formatter = Formatter()
-                val speed = formatter.format("%.1f km/h", json.getString("current_speed").toDouble()/3.6);
+                val speed = formatter.format("%.1f km/h", json.getString("current_speed").toDouble()*3.6);
                 find<AppCompatTextView>(R.id.view_speed).setText(speed.toString())
 
                 formatter = Formatter()
                 val elevation = formatter.format("%.1f m", json.getString("elevation_gain").toDouble());
                 find<AppCompatTextView>(R.id.view_elevation).setText(elevation.toString())
+
+                formatter = Formatter()
+                val distance = formatter.format("%.1f km", json.getString("distance").toDouble()/1000);
+                find<AppCompatTextView>(R.id.view_distance).setText(elevation.toString())
 
             }
         }
