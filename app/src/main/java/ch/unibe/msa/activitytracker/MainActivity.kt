@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
                 formatter = Formatter()
                 val distance = formatter.format("%.1f km", json.getString("distance").toDouble()/1000);
-                find<AppCompatTextView>(R.id.view_distance).setText(elevation.toString())
+                find<AppCompatTextView>(R.id.view_distance).setText(distance.toString())
 
             }
         }
