@@ -25,7 +25,7 @@ class Data : AnkoLogger{
 
     data class Activity(val timestamp: Date = Date(), val activity: String, val confidence: Int) : Sendable {
         override val Data: JsonObject
-            get() = jsonObject("type" to Type, "timestamp" to timestamp.toJsonDate(), "activity" to "RUNNING"/*activity*/, "certainty" to confidence) //TODO: KICK this damn RUNNING
+            get() = jsonObject("type" to Type, "timestamp" to timestamp.toJsonDate(), "activity" to activity, "certainty" to confidence) //TODO: KICK this damn RUNNING
         override val Type: String
             get() = "activity"
     }

@@ -54,7 +54,9 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
 
         fab.onClick { view ->
             if (isTracking()) {
-                fab.image = resources.getDrawable(android.R.drawable.ic_media_play, theme)
+                //fab.image = resources.getDrawable(android.R.drawable.ic_media_play, theme)
+                fab.image = resources.getDrawable(android.R.drawable.ic_media_play, theme);
+
                 stopTrackingService()
                 var sender = Sender("${Constants.BASE_URL}/api/v1/TrainingSession",
                         defaultSharedPreferences.getString("username", ""),defaultSharedPreferences.getString("password", ""))
@@ -63,7 +65,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                     sender.concludeSession()
                 }
             } else {
-                fab.image = resources.getDrawable(android.R.drawable.ic_media_pause, theme)
+                fab.image = resources.getDrawable(android.R.drawable.ic_media_pause, theme);
                 var sender = Sender("${Constants.BASE_URL}/api/v1/TrainingSession",
                         defaultSharedPreferences.getString("username", ""),defaultSharedPreferences.getString("password", ""))
 
@@ -122,7 +124,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 find<AppCompatTextView>(R.id.view_elevation).setText(elevation.toString())
 
                 formatter = Formatter()
-                val distance = formatter.format("%.1f km", json.getString("distance").toDouble()/1000);
+                val distance = formatter.format("%.1f m", json.getString("distance").toDouble());
                 find<AppCompatTextView>(R.id.view_distance).setText(distance.toString())
 
             }

@@ -44,8 +44,8 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
         // Create a location request
         locRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(12 * 1000)       // 12 seconds, in milliseconds
-                .setFastestInterval(5 * 1000) // 5 second, in milliseconds
+                .setInterval(8 * 1000)       // 7 seconds, in milliseconds
+                .setFastestInterval(4 * 1000) // 3 seconds, in milliseconds
 
         gApiClient = GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
@@ -61,14 +61,14 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
         if (intent == null) {
             // Android OS killed our Service and started it again because of
             info("Service was killed by Android")
-            sender = Sender("${Constants.BASE_URL}:3000/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
+            sender = Sender("${Constants.BASE_URL}/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
         }
         else{
             async {
                 val session = sender.getSession()
                 defaultSharedPreferences.edit().putString("sessionID", session.toString()).commit()
                 println("sessionID: $session")
-                sender = Sender("${Constants.BASE_URL}/api/v1/${defaultSharedPreferences.getString("sessionID",":sessionID")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
+                sender = Sender("${Constants.BASE_URL}/api/v1/${defaultSharedPreferences.getString("sessionID",":error")}/dataPoint",defaultSharedPreferences.getString("username",""),defaultSharedPreferences.getString("password",""))
             }
         }
 
@@ -165,6 +165,11 @@ public class TrackerService : Service(), AnkoLogger, ConnectionCallbacks, OnConn
             val elevation = location?.altitude ?: 0.0
 
             info("New Location found: $latitude, $longitude")
+
+            val accuracy = location?.accuracy?.toDouble() ?: 1000.0
+            //if(accuracy>60) //40 worked well
+            //    return
+            notifyOthers(0.0,0.0,accuracy)
 
             var response = ""
             async {

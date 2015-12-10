@@ -46,7 +46,7 @@ class ActivityRecognitionService : IntentService("activity-rec-service"), AnkoLo
     fun DetectedActivity.getActivityString(): String {
         return when (this.type) {
             DetectedActivity.ON_BICYCLE -> "ON_BICYCLE"
-            DetectedActivity.ON_FOOT -> "ON_FOOT"
+            DetectedActivity.ON_FOOT -> "RUNNING"
             DetectedActivity.RUNNING -> "RUNNING"
             DetectedActivity.STILL -> "STILL"
             DetectedActivity.WALKING -> "WALKING"
