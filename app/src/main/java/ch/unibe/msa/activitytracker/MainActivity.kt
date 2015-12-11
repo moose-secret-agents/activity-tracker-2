@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity(), AnkoLogger {
                 addToHistory("New Location: $latitude, $longitude @ ${elevation}m")
             } else if (intent.action.equals(Constants.ACTION_RESPONSE)){
                 val resp = intent.extras.getString("response")
-                addToHistory(resp)
+                //addToHistory(resp)
                 if(resp == "UNAUTHORIZED"){
                     stopTrackingService()
                     val fab = find<FloatingActionButton>(R.id.fab)
